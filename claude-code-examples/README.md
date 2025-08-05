@@ -16,12 +16,34 @@ claude-code-examples/
 │       ├── settings.json        # Advanced config with subagents
 │       └── hooks/
 │           └── comprehensive-check.sh
-└── microservices-project/       # Distributed systems setup
+├── microservices-project/       # Distributed systems setup
+│   └── .claude/
+│       ├── settings.json        # Microservices-specific config
+│       └── hooks/
+│           ├── microservice-validation.sh
+│           └── pre-commit-checks.sh
+├── enterprise-security-project/ # High-security enterprise environment
+│   └── .claude/
+│       ├── settings.json        # Security-focused configuration
+│       └── hooks/
+│           └── security-prompt-filter.py
+├── ai-research-project/         # ML/AI research environment
+│   └── .claude/
+│       ├── settings.json        # Research-focused config with MCP
+│       └── hooks/
+│           └── experiment-tracking.py
+├── startup-mvp-project/         # Rapid MVP development
+│   └── .claude/
+│       ├── settings.json        # MVP-focused configuration
+│       └── hooks/
+│           └── rapid-feedback.sh
+└── open-source-project/         # OSS project management
     └── .claude/
-        ├── settings.json        # Microservices-specific config
+        ├── settings.json        # Community-focused configuration
+        ├── commands/
+        │   └── create-issue-template.md
         └── hooks/
-            ├── microservice-validation.sh
-            └── pre-commit-checks.sh
+            └── contribution-standards.sh
 ```
 
 ## Example Configurations
@@ -55,6 +77,47 @@ claude-code-examples/
 - **Technologies**: Docker, Kubernetes, service mesh
 - **Hook Scripts**: microservice-validation.sh, pre-commit-checks.sh
 
+### 4. Enterprise Security Project (`enterprise-security-project/`)
+- **Use Case**: High-security enterprise environments, compliance-focused development
+- **Features**:
+  - Restricted permissions with security-first approach
+  - Advanced prompt filtering and validation
+  - Comprehensive audit logging
+  - Compliance checking and risk assessment
+- **Security Focus**: Defensive security, vulnerability analysis, compliance validation
+- **Hook Scripts**: security-prompt-filter.py, compliance-check.py, audit-logging.py
+
+### 5. AI Research Project (`ai-research-project/`)
+- **Use Case**: Machine learning research, data science, academic environments
+- **Features**:
+  - ML-focused agents (researcher, data scientist, research engineer)
+  - Experiment tracking and reproducibility
+  - MCP integration with research tools (arXiv, W&B, HuggingFace)
+  - GPU monitoring and compute resource management
+- **Research Tools**: MLflow, W&B, arXiv, Kaggle, HuggingFace
+- **Hook Scripts**: experiment-tracking.py, context-enhancement.py, compute-monitoring.py
+
+### 6. Startup MVP Project (`startup-mvp-project/`)
+- **Use Case**: Rapid prototyping, startup development, fast iteration
+- **Features**:
+  - Product-focused agents (PM, fullstack dev, growth engineer)
+  - Rapid feedback and deployment readiness checks
+  - Modern startup stack integration (Vercel, Supabase, PostHog)
+  - Performance and conversion optimization
+- **Startup Stack**: Vercel, Supabase, PostHog, Stripe
+- **Hook Scripts**: rapid-feedback.sh, deployment-ready-check.sh, mvp-validation.sh
+
+### 7. Open Source Project (`open-source-project/`)
+- **Use Case**: OSS maintenance, community management, public repositories
+- **Features**:
+  - Community-focused agents (maintainer, docs specialist, community manager)
+  - OSS standards validation and contribution workflows
+  - License compliance and security scanning
+  - GitHub integration and automated workflows
+- **Community Tools**: GitHub Actions, semantic-release, license-checker
+- **Hook Scripts**: contribution-standards.sh, license-check.py, ci-cd-validation.sh
+- **Custom Commands**: create-issue-template.md
+
 ## Hook Scripts Explained
 
 ### format-and-lint.sh (Basic)
@@ -75,6 +138,34 @@ claude-code-examples/
 - Health check endpoint verification
 - Observability configuration validation
 - Security and resource limit checks
+
+### security-prompt-filter.py (Enterprise Security)
+- Advanced prompt validation for security risks
+- Credential exposure detection
+- SQL/shell injection prevention
+- Compliance violation checking
+- Comprehensive audit logging
+
+### experiment-tracking.py (AI Research)
+- Automatic experiment metadata tracking
+- Git commit and environment capture
+- ML framework detection and integration
+- File hashing for reproducibility
+- W&B and MLflow integration
+
+### rapid-feedback.sh (Startup MVP)
+- Fast build and deployment validation
+- Bundle size optimization checks
+- Essential file verification
+- Environment configuration validation
+- MVP readiness scoring
+
+### contribution-standards.sh (Open Source)
+- OSS project health assessment
+- Essential file validation (README, LICENSE, etc.)
+- Package.json completeness checking
+- CI/CD workflow validation
+- Community template verification
 
 ## Usage
 

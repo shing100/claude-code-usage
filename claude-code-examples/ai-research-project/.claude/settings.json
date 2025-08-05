@@ -1,0 +1,146 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read",
+      "Write",
+      "Edit", 
+      "MultiEdit",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "Task"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/context-enhancement.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/research-validation.py",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/experiment-tracking.py",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/compute-monitoring.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-summary.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  },
+  "agents": [
+    {
+      "name": "ml-researcher",
+      "description": "Expert in machine learning research, experiment design, and statistical analysis",
+      "instructions": "You are an ML research specialist. Focus on experiment design, statistical significance, model architecture, hyperparameter optimization, and reproducible research practices. Always consider computational efficiency and scientific rigor.",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "name": "data-scientist",
+      "description": "Expert in data analysis, visualization, and statistical modeling",
+      "instructions": "Specialize in data preprocessing, exploratory data analysis, statistical modeling, and data visualization. Ensure data quality and provide insights through statistical analysis and visualization.",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "name": "research-engineer",
+      "description": "Expert in research infrastructure, MLOps, and scalable ML systems",
+      "instructions": "Focus on research infrastructure, experiment tracking, model deployment, distributed training, and MLOps practices. Design scalable and reproducible ML systems for research environments.",
+      "model": "claude-3-5-sonnet-20241022"
+    }
+  ],
+  "model": "claude-3-5-sonnet-20241022",
+  "environment": {
+    "RESEARCH_MODE": "active",
+    "EXPERIMENT_TRACKING": "enabled",
+    "COMPUTE_MONITORING": "enabled",
+    "REPRODUCIBILITY": "strict",
+    "WANDB_PROJECT": "ai-research",
+    "MLFLOW_TRACKING_URI": "http://localhost:5000"
+  },
+  "mcp": {
+    "servers": {
+      "arxiv": {
+        "command": "mcp-server-arxiv",
+        "args": ["--api-key", "${ARXIV_API_KEY}"]
+      },
+      "wandb": {
+        "command": "mcp-server-wandb", 
+        "args": ["--project", "${WANDB_PROJECT}"]
+      },
+      "huggingface": {
+        "command": "mcp-server-huggingface",
+        "args": ["--token", "${HF_TOKEN}"]
+      },
+      "kaggle": {
+        "command": "mcp-server-kaggle",
+        "args": ["--username", "${KAGGLE_USERNAME}", "--key", "${KAGGLE_KEY}"]
+      }
+    }
+  },
+  "tools": {
+    "custom": {
+      "experiment-run": {
+        "command": "python .claude/tools/run-experiment.py",
+        "description": "Execute ML experiment with proper tracking and logging"
+      },
+      "model-compare": {
+        "command": "python .claude/tools/model-comparison.py",
+        "description": "Compare model performance across experiments"
+      },
+      "data-profile": {
+        "command": "python .claude/tools/data-profiler.py",
+        "description": "Generate comprehensive data quality report"
+      },
+      "gpu-status": {
+        "command": "nvidia-smi --query-gpu=utilization.gpu,memory.used,memory.total --format=csv,noheader,nounits",
+        "description": "Check GPU utilization and memory usage"
+      }
+    }
+  },
+  "cleanupPeriodDays": 30,
+  "includeCoAuthoredBy": true
+}
