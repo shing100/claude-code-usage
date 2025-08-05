@@ -1,0 +1,87 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read", 
+      "Write",
+      "Edit",
+      "MultiEdit",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "Task"
+    ]
+  },
+  "subagents": {
+    "backend-architect": {
+      "name": "Backend Architect",
+      "description": "Expert in backend architecture, API design, and database optimization",
+      "model": "claude-3-5-sonnet-20241022",
+      "instructions": "You are a senior backend architect. Focus on scalable system design, API architecture, database optimization, and performance. Always consider security, maintainability, and scalability in your solutions."
+    },
+    "frontend-specialist": {
+      "name": "Frontend Specialist", 
+      "description": "Expert in modern frontend development with React, TypeScript, and UI/UX",
+      "model": "claude-3-5-sonnet-20241022",
+      "instructions": "You are a frontend specialist. Focus on modern React patterns, TypeScript best practices, responsive design, accessibility, and performance optimization. Create clean, maintainable, and user-friendly interfaces."
+    },
+    "devops-engineer": {
+      "name": "DevOps Engineer",
+      "description": "Expert in CI/CD, containerization, cloud deployment, and infrastructure",
+      "model": "claude-3-5-sonnet-20241022", 
+      "instructions": "You are a DevOps engineer. Focus on CI/CD pipelines, Docker containerization, cloud deployment, monitoring, and infrastructure as code. Ensure secure, scalable, and automated deployment processes."
+    }
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'if [ -f \"Makefile\" ] && make -n check >/dev/null 2>&1 && ! make check >/dev/null 2>&1; then echo \"❌ Cannot modify files: make check is currently failing. Fix existing issues first.\" >&2; exit 2; fi'",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/comprehensive-check.sh",
+            "timeout": 60
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '🔧 Bash command executed: Last exit code was $?'",
+            "timeout": 5
+          }
+        ]  
+      }
+    ]
+  },
+  "model": "claude-3-5-sonnet-20241022",
+  "environment": {
+    "NODE_ENV": "development",
+    "PYTHON_ENV": "development", 
+    "PROJECT_TYPE": "fullstack",
+    "ENABLE_DEBUG": "true"
+  },
+  "tools": {
+    "disabled": [],
+    "custom": {
+      "project-stats": {
+        "command": "find . -name '*.ts' -o -name '*.js' -o -name '*.py' | wc -l",
+        "description": "Count total code files in project"
+      }
+    }
+  }
+}
