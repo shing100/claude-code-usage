@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read",
+      "Write", 
+      "Edit",
+      "Glob",
+      "Grep"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '🔍 Pre-check: Validating code quality before modification...'",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command", 
+            "command": ".claude/hooks/format-and-lint.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  },
+  "model": "claude-3-5-sonnet-20241022",
+  "environment": {
+    "NODE_ENV": "development",
+    "PROJECT_TYPE": "fullstack"
+  }
+}

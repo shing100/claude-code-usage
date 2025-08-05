@@ -1,0 +1,80 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read",
+      "Write", 
+      "Edit",
+      "MultiEdit",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "Task"
+    ]
+  },
+  "agents": [
+    {
+      "name": "microservice-architect",
+      "description": "Expert in microservices architecture, service mesh, API gateway design, and distributed systems patterns",
+      "instructions": "You are a microservices architect specializing in distributed systems. Focus on service decomposition, inter-service communication, data consistency patterns, circuit breakers, and observability. Design resilient, scalable microservice architectures following Domain-Driven Design principles.",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "name": "kubernetes-specialist", 
+      "description": "Expert in Kubernetes, container orchestration, service mesh, and cloud-native deployment patterns",
+      "instructions": "You are a Kubernetes specialist. Focus on container orchestration, service discovery, load balancing, auto-scaling, monitoring, and cloud-native deployment strategies. Design secure, scalable Kubernetes architectures with proper resource management.",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "name": "api-gateway-engineer",
+      "description": "Expert in API gateway patterns, authentication, rate limiting, and API management",
+      "instructions": "You are an API gateway engineer. Focus on API routing, authentication/authorization, rate limiting, caching, request/response transformation, and API versioning. Design robust API gateway solutions that handle cross-cutting concerns effectively.",
+      "model": "claude-3-5-sonnet-20241022"
+    }
+  ],
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/pre-commit-checks.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit", 
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/microservice-validation.sh", 
+            "timeout": 120
+          }
+        ]
+      }
+    ]
+  },
+  "model": "claude-3-5-sonnet-20241022",
+  "environment": {
+    "ENVIRONMENT": "development",
+    "CLUSTER_NAME": "local-dev",
+    "NAMESPACE": "default",
+    "REGISTRY": "localhost:5000"
+  },
+  "mcp": {
+    "servers": {
+      "kubernetes": {
+        "command": "kubectl-mcp-server",
+        "args": ["--kubeconfig", "~/.kube/config"]
+      },
+      "docker-compose": {
+        "command": "docker-compose-mcp-server", 
+        "args": ["--file", "docker-compose.yml"]
+      }
+    }
+  }
+}
