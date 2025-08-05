@@ -1,0 +1,122 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "MultiEdit",
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "Task"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/license-check.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/contribution-standards.sh",
+            "timeout": 60
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/ci-cd-validation.sh",
+            "timeout": 45
+          }
+        ]
+      }
+    ]
+  },
+  "agents": [
+    {
+      "name": "oss-maintainer",
+      "description": "Expert in open source project maintenance, community management, and contribution workflows",
+      "instructions": "You are an experienced open source maintainer. Focus on code quality, documentation, community guidelines, licensing compliance, and sustainable project maintenance. Prioritize contributor experience and project accessibility.",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "name": "documentation-specialist",
+      "description": "Expert in technical writing, API documentation, and developer experience",
+      "instructions": "Specialize in clear, comprehensive documentation. Focus on getting-started guides, API references, contributing guidelines, and examples. Make complex concepts accessible to developers of all levels.",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "name": "community-manager",
+      "description": "Expert in open source community building, issue triage, and contributor onboarding",
+      "instructions": "Focus on community health, contributor onboarding, issue management, and maintaining welcoming environments. Help with PR reviews, issue triage, and community guidelines.",
+      "model": "claude-3-5-sonnet-20241022"
+    }
+  ],
+  "model": "claude-3-5-sonnet-20241022",
+  "environment": {
+    "OSS_MODE": "active",
+    "LICENSE": "MIT",
+    "CONTRIBUTOR_COVENANT": "2.1",
+    "SEMANTIC_VERSIONING": "enabled",
+    "CHANGELOG": "keep-a-changelog",
+    "CI_PROVIDER": "github-actions"
+  },
+  "mcp": {
+    "servers": {
+      "github": {
+        "command": "mcp-server-github",
+        "args": ["--token", "${GITHUB_TOKEN}"]
+      },
+      "npm": {
+        "command": "mcp-server-npm",
+        "args": ["--registry", "https://registry.npmjs.org"]
+      },
+      "semantic-release": {
+        "command": "mcp-server-semantic-release",
+        "args": ["--config", ".releaserc.json"]
+      }
+    }
+  },
+  "tools": {
+    "custom": {
+      "license-scan": {
+        "command": "npx license-checker --summary",
+        "description": "Scan dependencies for license compliance"
+      },
+      "vulnerability-scan": {
+        "command": "npm audit --audit-level moderate",
+        "description": "Check for security vulnerabilities"
+      },
+      "coverage-report": {
+        "command": "npm test -- --coverage --coverageReporters=text-summary",
+        "description": "Generate test coverage report"
+      },
+      "docs-build": {
+        "command": "npm run docs:build",
+        "description": "Build documentation site"
+      },
+      "release-dry-run": {
+        "command": "npx semantic-release --dry-run",
+        "description": "Preview next release version and changelog"
+      }
+    }
+  },
+  "cleanupPeriodDays": 90,
+  "includeCoAuthoredBy": true
+}

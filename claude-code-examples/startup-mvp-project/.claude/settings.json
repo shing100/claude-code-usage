@@ -1,0 +1,126 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash",
+      "Read",
+      "Write",
+      "Edit",
+      "MultiEdit", 
+      "Glob",
+      "Grep",
+      "WebFetch",
+      "Task"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/mvp-validation.sh",
+            "timeout": 20
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/rapid-feedback.sh",
+            "timeout": 45
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/deployment-ready-check.sh",
+            "timeout": 30
+          }
+        ]
+      }
+    ]
+  },
+  "agents": [
+    {
+      "name": "product-manager",
+      "description": "Expert in product strategy, user experience, and MVP development",
+      "instructions": "You are a product manager focused on rapid MVP development. Prioritize user value, market fit, and fast iteration. Make decisions that balance technical debt with speed to market. Focus on core features that validate key assumptions.",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "name": "fullstack-mvp-dev",
+      "description": "Expert in rapid fullstack development with focus on modern, productive tools",
+      "instructions": "You are a fullstack developer optimized for MVP speed. Use modern, productive tools and frameworks. Prioritize developer experience and deployment simplicity. Choose battle-tested solutions over cutting-edge tech. Focus on getting to market quickly.",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "name": "growth-engineer",
+      "description": "Expert in analytics, A/B testing, and growth hacking techniques",
+      "instructions": "Focus on user analytics, conversion optimization, A/B testing, and growth metrics. Implement tracking and measurement from day one. Design experiments to validate growth hypotheses and optimize user funnels.",
+      "model": "claude-3-5-sonnet-20241022"
+    }
+  ],
+  "model": "claude-3-5-sonnet-20241022",
+  "environment": {
+    "MVP_MODE": "active",
+    "DEPLOYMENT_TARGET": "vercel",
+    "DATABASE": "supabase",
+    "ANALYTICS": "posthog",
+    "MONITORING": "sentry",
+    "FEATURE_FLAGS": "enabled"
+  },
+  "mcp": {
+    "servers": {
+      "vercel": {
+        "command": "mcp-server-vercel",
+        "args": ["--token", "${VERCEL_TOKEN}"]
+      },
+      "supabase": {
+        "command": "mcp-server-supabase",
+        "args": ["--project", "${SUPABASE_PROJECT_ID}", "--key", "${SUPABASE_ANON_KEY}"]
+      },
+      "posthog": {
+        "command": "mcp-server-posthog",
+        "args": ["--api-key", "${POSTHOG_API_KEY}"]
+      },
+      "stripe": {
+        "command": "mcp-server-stripe",
+        "args": ["--secret-key", "${STRIPE_SECRET_KEY}"]
+      }
+    }
+  },
+  "tools": {
+    "custom": {
+      "deploy-preview": {
+        "command": "vercel --prod=false",
+        "description": "Deploy preview version to Vercel"
+      },
+      "deploy-prod": {
+        "command": "vercel --prod",
+        "description": "Deploy to production"
+      },
+      "db-migrate": {
+        "command": "supabase db push",
+        "description": "Apply database migrations"
+      },
+      "analytics-check": {
+        "command": "curl -X GET \"${POSTHOG_API_URL}/api/projects/${POSTHOG_PROJECT_ID}/insights/\" -H \"Authorization: Bearer ${POSTHOG_API_KEY}\"",
+        "description": "Check analytics dashboard"
+      },
+      "lighthouse-audit": {
+        "command": "npx lighthouse ${SITE_URL} --output=json --output-path=.claude/reports/lighthouse.json",
+        "description": "Run Lighthouse performance audit"
+      }
+    }
+  },
+  "cleanupPeriodDays": 14,
+  "includeCoAuthoredBy": true
+}

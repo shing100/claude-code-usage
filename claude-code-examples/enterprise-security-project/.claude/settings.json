@@ -1,0 +1,107 @@
+{
+  "permissions": {
+    "allow": [
+      "Read",
+      "Glob", 
+      "Grep",
+      "Task"
+    ],
+    "deny": [
+      "Bash(curl:*)",
+      "Bash(wget:*)",
+      "Bash(ssh:*)",
+      "WebFetch"
+    ]
+  },
+  "hooks": {
+    "UserPromptSubmit": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/security-prompt-filter.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/security-validation.py",
+            "timeout": 30
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/compliance-check.py",
+            "timeout": 60
+          },
+          {
+            "type": "command",
+            "command": ".claude/hooks/audit-logging.py",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": ".*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-cleanup.py",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  },
+  "agents": [
+    {
+      "name": "security-auditor",
+      "description": "Expert in security analysis, vulnerability assessment, and compliance validation",
+      "instructions": "You are a security expert focused on defensive security. Analyze code for vulnerabilities, validate security configurations, and ensure compliance with security standards. Never assist with offensive security or malicious activities.",
+      "model": "claude-3-5-sonnet-20241022"
+    },
+    {
+      "name": "compliance-officer",
+      "description": "Expert in regulatory compliance, data privacy, and enterprise security policies",
+      "instructions": "Focus on regulatory compliance (GDPR, HIPAA, SOX), data privacy, access controls, and enterprise security policies. Ensure all code and configurations meet compliance requirements.",
+      "model": "claude-3-5-sonnet-20241022"
+    }
+  ],
+  "model": "claude-3-5-sonnet-20241022",
+  "environment": {
+    "SECURITY_LEVEL": "enterprise",
+    "COMPLIANCE_MODE": "strict",
+    "AUDIT_ENABLED": "true",
+    "VAULT_INTEGRATION": "true"
+  },
+  "cleanupPeriodDays": 7,
+  "includeCoAuthoredBy": true,
+  "tools": {
+    "disabled": ["WebFetch", "Bash"],
+    "custom": {
+      "security-scan": {
+        "command": "python .claude/tools/security-scanner.py",
+        "description": "Run comprehensive security analysis on codebase"
+      },
+      "compliance-report": {
+        "command": "python .claude/tools/compliance-reporter.py",
+        "description": "Generate compliance status report"
+      }
+    }
+  }
+}
